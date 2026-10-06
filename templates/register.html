@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Smart Parking System{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">🚀</div>
+            <h2>Create Account</h2>
+            <p>Join Smart Parking to reserve slots faster and track your vehicles</p>
+        </div>
+
+        <form action="{{ url_for('register') }}" method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    placeholder="e.g. Alex Johnson" 
+                    required 
+                    autocomplete="name"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="name@example.com" 
+                    required 
+                    autocomplete="email"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Create a strong password" 
+                    required 
+                    minlength="4"
+                    autocomplete="new-password"
+                >
+            </div>
+
+            <button type="submit" class="auth-btn">
+                Register Account
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('home') }}">Sign In</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

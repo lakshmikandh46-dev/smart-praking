@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Smart Parking Management System</h1>
+        <p>Find, reserve, and manage your parking slot in real time</p>
+    </header>
+
+    <!-- Quick Stats Bar -->
+    <div class="stats-bar">
+        <div class="stat-card total">
+            <div class="stat-info">
+                <h3>Total Capacity</h3>
+                <div class="stat-value" id="statTotal">8</div>
+            </div>
+            <div class="stat-icon">🅿️</div>
+        </div>
+        <div class="stat-card available">
+            <div class="stat-info">
+                <h3>Available Slots</h3>
+                <div class="stat-value" id="statAvailable">-</div>
+            </div>
+            <div class="stat-icon">🟢</div>
+        </div>
+        <div class="stat-card occupied">
+            <div class="stat-info">
+                <h3>Occupied Slots</h3>
+                <div class="stat-value" id="statOccupied">-</div>
+            </div>
+            <div class="stat-icon">🔴</div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Parking Slots Grid Section -->
+        <section class="parking">
+            <div class="section-header">
+                <h2>Live Parking Map</h2>
+                <button class="refresh-btn" type="button" onclick="loadSlots()">🔄 Refresh</button>
+            </div>
+
+            <div class="slots" id="slotsContainer">
+                <!-- Dynamically populated via script.js from get_slots.php -->
+                <button type="button" id="slot-A1" class="slot available"
+                    onclick="selectSlot('A1')"><span>A1</span><small>Available</small></button>
+                <button type="button" id="slot-A2" class="slot available"
+                    onclick="selectSlot('A2')"><span>A2</span><small>Available</small></button>
+                <button type="button" id="slot-A3" class="slot available"
+                    onclick="selectSlot('A3')"><span>A3</span><small>Available</small></button>
+                <button type="button" id="slot-A4" class="slot available"
+                    onclick="selectSlot('A4')"><span>A4</span><small>Available</small></button>
+                <button type="button" id="slot-B1" class="slot available"
+                    onclick="selectSlot('B1')"><span>B1</span><small>Available</small></button>
+                <button type="button" id="slot-B2" class="slot available"
+                    onclick="selectSlot('B2')"><span>B2</span><small>Available</small></button>
+                <button type="button" id="slot-B3" class="slot available"
+                    onclick="selectSlot('B3')"><span>B3</span><small>Available</small></button>
+                <button type="button" id="slot-B4" class="slot available"
+                    onclick="selectSlot('B4')"><span>B4</span><small>Available</small></button>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <span class="legend-dot available"></span>
+                    <span>Available</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot occupied"></span>
+                    <span>Occupied</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot selected"></span>
+                    <span>Selected</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reservation Form Section -->
+        <section class="booking">
+            <div class="section-header">
+                <h2>Reserve a Slot</h2>
+            </div>
+
+            <form id="bookingForm" action="reserve.php" method="POST">
+                <div class="form-group">
+                    <label for="customer_name">Customer Name</label>
+                    <input type="text" id="customer_name" name="customer_name" placeholder="e.g. John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="vehicle_number">Vehicle Number</label>
+                    <input type="text" id="vehicle_number" name="vehicle_number" placeholder="TN 00 AB 0000" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="selectedSlot">Selected Slot</label>
+                    <input type="text" id="selectedSlot" name="slot_number"
+                        placeholder="Click an available slot on the map" readonly required>
+                    <p class="helper-text">Click any green slot on the left to select.</p>
+                </div>
+
+                <button type="submit" class="reserve">
+                    Confirm Reservation
+                </button>
+            </form>
+        </section>
+
+    </div>
+
+    <!-- Active Reservations & Checkout Panel -->
+    <div class="active-bookings-section">
+        <div class="section-header">
+            <h2>Active Parked Vehicles & Checkout</h2>
+        </div>
+
+        <p id="noBookingsMsg" style="color: #64748b;">
+            No vehicles currently parked.
+        </p>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Slot</th>
+                        <th>Vehicle Number</th>
+                        <th>Customer Name</th>
+                        <th>Entry Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="activeBookingsBody">
+                    <!-- Dynamically populated via script.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

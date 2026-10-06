@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Smart Parking{% endblock %}
+
+{% block content %}
+<div class="dashboard-header-banner">
+    <div class="dashboard-header-content">
+        <h1>Welcome, {{ name }} 👋</h1>
+        <p>Manage your reservations, view booking history, and monitor parking status.</p>
+    </div>
+    <div class="header-action">
+        <a href="{{ url_for('parking') }}" class="btn btn-primary btn-large">
+            🚗 Reserve a Parking Slot
+        </a>
+    </div>
+</div>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="stat-card total">
+        <div class="stat-info">
+            <h3>Facility Capacity</h3>
+            <div class="stat-value">{{ total_slots }}</div>
+        </div>
+        <div class="stat-icon">🅿️</div>
+    </div>
+    <div class="stat-card available">
+        <div class="stat-info">
+            <h3>Available Now</h3>
+            <div class="stat-value">{{ available_slots }}</div>
+        </div>
+        <div class="stat-icon">🟢</div>
+    </div>
+    <div class="stat-card occupied">
+        <div class="stat-info">
+            <h3>Your Total Bookings</h3>
+            <div class="stat-value">{{ bookings|length }}</div>
+        </div>
+        <div class="stat-icon">📋</div>
+    </div>
+</div>
+
+<div class="dashboard-content-container">
+    <div class="section-card">
+        <div class="section-card-header">
+            <h2>Your Bookings & Parking History</h2>
+            <span class="badge-count">{{ bookings|length }} records</span>
+        </div>
+
+        {% if bookings %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Slot</th>
+                        <th>Vehicle Number</th>
+                        <th>Booked / Entry Time</th>
+                        <th>Status</th>
+                        <th>Fee</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                    <tr>
+                        <td><strong class="badge-slot">{{ b.slot_number }}</strong></td>
+                        <td><strong>{{ b.vehicle_number }}</strong></td>
+                        <td>{{ b.booking_time }}</td>
+                        <td>
+                            {% if b.status == 'Active' %}
+                                <span class="badge-status active">Active Parked</span>
+                            {% else %}
+                                <span class="badge-status completed">Completed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if b.amount and b.amount > 0 %}
+                                ${{ "%.2f"|format(b.amount) }}
+                            {% elif b.status == 'Active' %}
+                                <span class="text-muted">In Progress ($2/hr)</span>
+                            {% else %}
+                                $0.00
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if b.status == 'Active' %}
+                                <button type="button" class="btn-release" onclick="releaseVehicle('{{ b.slot_number }}', {{ b.id }})">
+                                    Check Out
+                                </button>
+                            {% else %}
+                                <span class="text-muted">Checked Out</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🚗</div>
+            <h3>No reservations found</h3>
+            <p>You haven't reserved any parking slots yet.</p>
+            <a href="{{ url_for('parking') }}" class="btn btn-primary mt-15">Find an Available Slot</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

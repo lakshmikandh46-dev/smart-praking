@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Live Parking Map & Reservation - Smart Parking{% endblock %}
+
+{% block content %}
+<header class="page-banner">
+    <h1>Live Parking Management</h1>
+    <p>Find, reserve, and manage parking slots in real time with automatic billing</p>
+</header>
+
+<!-- Quick Stats Bar -->
+<div class="stats-bar">
+    <div class="stat-card total">
+        <div class="stat-info">
+            <h3>Total Capacity</h3>
+            <div class="stat-value" id="statTotal">{{ total }}</div>
+        </div>
+        <div class="stat-icon">🅿️</div>
+    </div>
+    <div class="stat-card available">
+        <div class="stat-info">
+            <h3>Available Slots</h3>
+            <div class="stat-value" id="statAvailable">{{ available }}</div>
+        </div>
+        <div class="stat-icon">🟢</div>
+    </div>
+    <div class="stat-card occupied">
+        <div class="stat-info">
+            <h3>Occupied Slots</h3>
+            <div class="stat-value" id="statOccupied">{{ occupied }}</div>
+        </div>
+        <div class="stat-icon">🔴</div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Parking Slots Grid Section -->
+    <section class="parking">
+        <div class="section-header">
+            <h2>Interactive Parking Map</h2>
+            <button class="refresh-btn" type="button" onclick="loadSlots()">🔄 Refresh</button>
+        </div>
+
+        <div class="slots" id="slotsContainer">
+            {% for slot in slots %}
+            <button type="button" id="slot-{{ slot.slot_number }}" class="slot {{ slot.status|lower }}" {% if
+                slot.status|lower=='available' %} onclick="selectSlot('{{ slot.slot_number }}')" {% else %} disabled
+                title="Slot {{ slot.slot_number }} is currently occupied" {% endif %}>
+                <span>{{ slot.slot_number }}</span>
+                <small>{{ slot.status }}</small>
+            </button>
+            {% endfor %}
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-dot available"></span>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-dot occupied"></span>
+                <span>Occupied</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-dot selected"></span>
+                <span>Selected</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reservation Form Section -->
+    <section class="booking">
+        <div class="section-header">
+            <h2>Reserve a Slot</h2>
+        </div>
+
+        <form id="bookingForm" action="/api/reserve" method="POST">
+            <div class="form-group">
+                <label for="customer_name">Driver / Customer Name</label>
+                <input type="text" id="customer_name" name="customer_name" placeholder="e.g. John Doe"
+                    value="{{ session.get('user_name', '') }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="vehicle_number">Vehicle License Plate</label>
+                <input type="text" id="vehicle_number" name="vehicle_number" placeholder="e.g. TN 01 AB 1234"
+                    style="text-transform: uppercase;" required>
+            </div>
+
+            <div class="form-group">
+                <label for="selectedSlot">Selected Slot</label>
+                <input type="text" id="selectedSlot" name="slot_number" placeholder="Click an available slot on the map"
+                    readonly required>
+                <p class="helper-text">Click any green slot on the parking map to select it.</p>
+            </div>
+
+            <button type="submit" class="reserve">
+                Confirm Reservation
+            </button>
+        </form>
+    </section>
+
+</div>
+
+<!-- Active Reservations & Checkout Panel -->
+<div class="active-bookings-section">
+    <div class="section-header">
+        <h2>Active Parked Vehicles & Real-Time Checkout</h2>
+    </div>
+
+    <p id="noBookingsMsg" style="color: #64748b; {% if active_bookings %}display: none;{% endif %}">
+        No vehicles currently parked.
+    </p>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Slot</th>
+                    <th>Vehicle Number</th>
+                    <th>Customer Name</th>
+                    <th>Entry / Booking Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="activeBookingsBody">
+                {% for b in active_bookings %}
+                <tr>
+                    <td><strong class="badge-slot">{{ b.slot_number }}</strong></td>
+                    <td>{{ b.vehicle_number }}</td>
+                    <td>{{ b.customer_name }}</td>
+                    <td>
+                        {% if b.entry_time %}
+                        {{ b.entry_time.strftime("%Y-%m-%d %H:%M:%S") }}
+                        {% else %}
+                        {{ b.booking_time }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn-release" onclick="releaseVehicle('{{ b.slot_number }}', {{ b.id }})">
+                            Check Out
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
